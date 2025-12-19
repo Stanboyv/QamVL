@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QAM Virtual Laboratory — Full Simulation</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+/* Base layout (kept compact but readable) */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#222}
+.container{max-width:1200px;margin:28px auto;padding:20px}
+.header{background:rgba(255,255,255,0.95);padding:18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.12);text-align:center}
+.header h1{color:#2f3ea3;margin-bottom:6px}
+.header p{color:#444}
+.nav{display:flex;gap:8px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+.nav button{background:#fff;border:2px solid transparent;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+.nav button.active{border-color:#2f3ea3;color:#2f3ea3;box-shadow:0 6px 20px rgba(46,52,153,0.12)}
+.page{display:none;background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+.page.active{display:block}
+.grid{display:grid;grid-template-columns:1fr 420px;gap:18px}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.input-group{margin-bottom:12px}
+.input-group label{display:block;font-weight:700;margin-bottom:6px;color:#333}
+.input-group input[type="number"],select,input[type="text"]{width:100%;padding:10px;border:2px solid #e6e8ff;border-radius:8px}
+.slider-row{display:flex;align-items:center;gap:12px}
+.slider-row input[type="range"]{flex:1}
+.small{font-size:0.9rem;color:#555}
+.btn{background:linear-gradient(90deg,#2f3ea3,#6a4ba8);color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-weight:700}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px}
+.card{background:linear-gradient(90deg,#2f3ea3,#6a4ba8);color:#fff;padding:12px;border-radius:10px;text-align:center}
+.card .label{opacity:0.9;font-size:0.9rem}
+.card .value{font-size:1.3rem;font-weight:800}
+.legend{display:flex;gap:14px;align-items:center;justify-content:center;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:8px}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+.legend-dot.blue{background:#2196f3}
+.legend-dot.red{background:#f44336}
+.stage{margin-top:14px}
+.codebox{background:#f4f6ff;border-radius:8px;padding:10px;font-family:monospace;font-size:0.9rem;overflow:auto}
+.small-muted{font-size:0.85rem;color:#666;margin-top:6px}
+.controls-row{display:flex;gap:8px;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px}
+.footer-note{margin-top:12px;background:#fff6d9;border-left:4px solid #ffc107;padding:10px;border-radius:6px;color:#744400}
+
+/* New styling for the simulation details area to appear as normal readable text */
+.details-text{
+  background: #ffffff;
+  border: 1px solid #e6e8ff;
+  border-radius: 8px;
+  padding: 12px;
+  color: #222;
+  line-height: 1.5;
+  font-family: inherit;
+  font-size: 0.95rem;
+  white-space: pre-wrap; /* preserve any newlines from simulation but keep normal text rendering */
+  max-height: 220px;
+  overflow:auto;
+  box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+}
+
+/* Block diagrams & apps column styling */
+.bd-section{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:12px}
+@media(max-width:980px){.bd-section{grid-template-columns:1fr}}
+.bd-card{background:#fff;padding:12px;border-radius:10px;border:2px solid #eef0ff;box-shadow:0 6px 18px rgba(0,0,0,0.03)}
+.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.bd-grid{grid-template-columns:1fr}}
+.bd-diagram{background:linear-gradient(180deg,#fbfdff,#fbfdff);padding:8px;border-radius:8px;border:1px solid #eef4ff;display:flex;align-items:center;justify-content:center}
+.pre-block{background:#f7f9ff;border:1px solid #eef2ff;padding:10px;border-radius:6px;font-family:monospace;font-size:0.95rem;white-space:pre-wrap}
+.app-list{list-style:none;padding-left:0;margin:0}
+.app-list li{padding:8px;border-radius:6px;margin-bottom:8px;background:linear-gradient(90deg,#fff,#fbfdff);border:1px solid #f1f5ff;font-weight:600}
+.small-title{font-weight:700;color:#222;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>QAM Virtual Laboratory</h1>
+    <p>Interactive QAM simulation — constellation, waveform, BER/SER, and more</p>
+  </div>
+
+  <div class="nav" role="tablist" aria-label="Sections">
+    <button type="button" class="nav-btn active" data-page="aim">Aim</button>
+    <button type="button" class="nav-btn" data-page="theory">Theory</button>
+    <button type="button" class="nav-btn" data-page="procedure">Procedure</button>
+    <button type="button" class="nav-btn" data-page="blockdiag">Block Diagrams</button>
+    <button type="button" class="nav-btn" data-page="simulation">Simulation</button>
+    <button type="button" class="nav-btn" data-page="faq">FAQ</button>
+    <button type="button" class="nav-btn" data-page="references">References</button>
+  </div>
+
+  <!-- AIM -->
+  <section id="aim" class="page active" role="region" aria-labelledby="aim">
+    <h2>🎯 Aim</h2>
+    <p>
+      To provide an interactive platform for exploring Quadrature Amplitude Modulation (QAM) — from constellation visualization to waveform generation and BER/SER analysis under AWGN channels.
+    </p>
+    <p style="margin-top:8px;">
+      This laboratory aims to:
+    </p>
+    <ul style="margin:8px 0 0 18px;">
+      <li>Demonstrate how digital bits are mapped to complex symbols (I/Q) in various M-QAM constellations.</li>
+      <li>Visualize the effect of additive white Gaussian noise (AWGN) on constellation clustering and on symbol/bit errors.</li>
+      <li>Provide hands-on controls to vary SNR, symbol rate, carrier frequency and input patterns to see their practical impact.</li>
+      <li>Enable comparison between theoretical expectations and observed BER/SER through reproducible simulations.</li>
+    </ul>
+  </section>
+
+  <!-- THEORY -->
+  <section id="theory" class="page" role="region" aria-labelledby="theory">
+    <h2>📚 Theory</h2>
+    <p>
+      Quadrature Amplitude Modulation (QAM) combines two amplitude-modulated carriers — an in-phase (I) and a quadrature (Q) component — to convey information. Each transmitted symbol corresponds to a point in a 2D constellation where the I axis represents cosine-weighted amplitude and the Q axis represents sine-weighted amplitude.
+    </p>
+    <p style="margin-top:8px;">
+      The number of constellation points, M, determines how many bits are conveyed per symbol: bits/symbol = log2(M). Higher M (e.g., 64-, 256-QAM) increases spectral efficiency but places points closer together, making them more susceptible to noise and impairments.
+    </p>
+    <p style="margin-top:8px;">
+      Important concepts:
+    </p>
+    <ul style="margin:8px 0 0 18px;">
+      <li><strong>Symbol mapping:</strong> Bits are grouped and mapped to constellation indices (often using Gray mapping to reduce bit errors on single-symbol errors).</li>
+      <li><strong>AWGN:</strong> The primary impairment modeled here is white Gaussian noise, which perturbs I/Q samples and causes both symbol and bit errors.</li>
+      <li><strong>Demapping:</strong> At the receiver, nearest-neighbor decision rules are commonly used to map noisy samples back to symbol indices; this simple approach is effective for illustrating BER/SER trends.</li>
+      <li><strong>Tradeoffs:</strong> Increasing SNR improves error performance; increasing M increases data rate but requires higher SNR for the same error performance.</li>
+    </ul>
+    <p style="margin-top:8px;">
+      This simulator uses conventional real-valued baseband representation and plots the modulated real waveform s(t)=I*cos(2πfct) - Q*sin(2πfct) to show how I and Q combine on a carrier.
+    </p>
+  </section>
+
+  <!-- PROCEDURE -->
+  <section id="procedure" class="page" role="region" aria-labelledby="procedure">
+    <h2>📋 Procedure</h2>
+    <ol>
+      <li>Choose modulation order (M) from the control pane — smaller M means more robust to noise; larger M means higher data rate.</li>
+      <li>Select input mode: bit-based to auto-generate random bits, or symbol-based to provide explicit symbol indices (or 'rand').</li>
+      <li>Set the number of bits or symbols. If bit-based mode is used, the tool auto-adjusts to be a multiple of bits-per-symbol.</li>
+      <li>Adjust SNR (dB) to simulate channel conditions. Lower SNR increases symbol dispersion and errors.</li>
+      <li>Set carrier frequency, symbol duration and symbol rate to model waveform details. For visualization, choose a moderate samples-per-symbol.</li>
+      <li>Hit "Run Simulation" and inspect the constellation, time-domain waveform and the BER / SER readings. Use "Reset" to go back to defaults.</li>
+      <li>Experiment systematically: change one parameter at a time (e.g., increase M, then increase SNR) to observe tradeoffs.</li>
+    </ol>
+    <p style="margin-top:8px;">
+      Tips:
+    </p>
+    <ul style="margin:8px 0 0 18px;">
+      <li>Use the constellation plot to see clustering around ideal points and to visually estimate decision regions.</li>
+      <li>Compare the bit comparison block to quickly find the first mismatches between transmitted and received bits.</li>
+      <li>For a demonstration or presentation, record BER/SER values as you sweep SNR to create performance curves offline.</li>
+    </ul>
+  </section>
+
+  <!-- BLOCK DIAGRAMS - New section -->
+  <section id="blockdiag" class="page" role="region" aria-labelledby="blockdiag">
+    <h2>🧩 Block Diagrams, Formulas & Applications</h2>
+
+    <div class="bd-section">
+      <!-- Left: Block diagrams for each modulation -->
+      <div class="bd-card">
+        <div class="small-title">Block diagrams (simplified & clear)</div>
+
+        <div class="bd-grid" style="margin-top:10px">
+          <!-- 4-QAM -->
+          <div>
+            <div style="font-weight:700;margin-bottom:6px">4-QAM (QPSK)</div>
+            <div class="bd-diagram" aria-hidden="true">
+              <!-- simple illustrative SVG -->
+              <svg width="320" height="60" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="38" y="35" font-size="11" text-anchor="middle" fill="#222">Bit Source</text>
+
+                <rect x="80" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="112" y="35" font-size="11" text-anchor="middle" fill="#222">Mapper</text>
+
+                <rect x="154" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="186" y="35" font-size="11" text-anchor="middle" fill="#222">I/Q Modulator</text>
+
+                <rect x="228" y="10" width="84" height="40" rx="6" fill="#fff" stroke="#ffeede"/>
+                <text x="270" y="35" font-size="11" text-anchor="middle" fill="#222">AWGN Channel</text>
+
+                <line x1="70" y1="30" x2="80" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="144" y1="30" x2="154" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="218" y1="30" x2="228" y2="30" stroke="#ffdac6" stroke-width="2"/>
+              </svg>
+            </div>
+            <div style="margin-top:8px;font-size:0.95rem;color:#333">
+              <strong>Formula (bits/symbol):</strong> b = log2(4) = 2
+              <div><strong>Typical working SNR (approx):</strong> ~8–12 dB for low BER (depends on target)</div>
+            </div>
+          </div>
+
+          <!-- 16-QAM -->
+          <div>
+            <div style="font-weight:700;margin-bottom:6px">16-QAM</div>
+            <div class="bd-diagram" aria-hidden="true">
+              <svg width="320" height="60" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="38" y="35" font-size="11" text-anchor="middle" fill="#222">Source</text>
+
+                <rect x="80" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="112" y="35" font-size="11" text-anchor="middle" fill="#222">Gray Mapper</text>
+
+                <rect x="154" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="186" y="35" font-size="11" text-anchor="middle" fill="#222">Pulse Shaper</text>
+
+                <rect x="228" y="10" width="84" height="40" rx="6" fill="#fff" stroke="#ffeede"/>
+                <text x="270" y="35" font-size="11" text-anchor="middle" fill="#222">RF & Channel</text>
+
+                <line x1="70" y1="30" x2="80" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="144" y1="30" x2="154" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="218" y1="30" x2="228" y2="30" stroke="#ffdac6" stroke-width="2"/>
+              </svg>
+            </div>
+            <div style="margin-top:8px;font-size:0.95rem;color:#333">
+              <strong>Formula (bits/symbol):</strong> b = log2(16) = 4
+              <div><strong>Typical working SNR (approx):</strong> ~16–22 dB for practical low BER</div>
+            </div>
+          </div>
+
+          <!-- 64-QAM -->
+          <div>
+            <div style="font-weight:700;margin-bottom:6px">64-QAM</div>
+            <div class="bd-diagram" aria-hidden="true">
+              <svg width="320" height="60" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="38" y="35" font-size="11" text-anchor="middle" fill="#222">Source</text>
+
+                <rect x="80" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="112" y="35" font-size="11" text-anchor="middle" fill="#222">Encoder / Mapper</text>
+
+                <rect x="154" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="186" y="35" font-size="11" text-anchor="middle" fill="#222">Matched Filter</text>
+
+                <rect x="228" y="10" width="84" height="40" rx="6" fill="#fff" stroke="#ffeede"/>
+                <text x="270" y="35" font-size="11" text-anchor="middle" fill="#222">RF & Channel</text>
+
+                <line x1="70" y1="30" x2="80" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="144" y1="30" x2="154" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="218" y1="30" x2="228" y2="30" stroke="#ffdac6" stroke-width="2"/>
+              </svg>
+            </div>
+            <div style="margin-top:8px;font-size:0.95rem;color:#333">
+              <strong>Formula (bits/symbol):</strong> b = log2(64) = 6
+              <div><strong>Typical working SNR (approx):</strong> ~22–28 dB for low BER in many systems</div>
+            </div>
+          </div>
+
+          <!-- 256-QAM -->
+          <div>
+            <div style="font-weight:700;margin-bottom:6px">256-QAM</div>
+            <div class="bd-diagram" aria-hidden="true">
+              <svg width="320" height="60" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="38" y="35" font-size="11" text-anchor="middle" fill="#222">Source</text>
+
+                <rect x="80" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="112" y="35" font-size="11" text-anchor="middle" fill="#222">FEC / Mapper</text>
+
+                <rect x="154" y="10" width="64" height="40" rx="6" fill="#fff" stroke="#e6eefc"/>
+                <text x="186" y="35" font-size="11" text-anchor="middle" fill="#222">Pulse Shaping</text>
+
+                <rect x="228" y="10" width="84" height="40" rx="6" fill="#fff" stroke="#ffeede"/>
+                <text x="270" y="35" font-size="11" text-anchor="middle" fill="#222">RF & Channel</text>
+
+                <line x1="70" y1="30" x2="80" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="144" y1="30" x2="154" y2="30" stroke="#cbdffd" stroke-width="2"/>
+                <line x1="218" y1="30" x2="228" y2="30" stroke="#ffdac6" stroke-width="2"/>
+              </svg>
+            </div>
+            <div style="margin-top:8px;font-size:0.95rem;color:#333">
+              <strong>Formula (bits/symbol):</strong> b = log2(256) = 8
+              <div><strong>Typical working SNR (approx):</strong> ~28–35 dB (sensitive to impairments and non-linearities)</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="small-muted">
+          <div style="font-weight:700;margin-bottom:6px">Perfect block diagram (notes)</div>
+          <div>
+            A concise, practical transmit/receive chain for teaching:
+            <pre class="pre-block">
+Transmitter:
+  Bit Source
+    ↓
+  FEC Encoder (optional)
+    ↓
+  Bit Interleaver (optional)
+    ↓
+  Mapper (Gray mapping recommended)
+    ↓
+  Pulse Shaping (e.g., root-raised cosine)
+    ↓
+  I/Q Modulator → RF Chain
+    ↓
+Channel: AWGN (plus fading/impairments as required)
+
+Receiver (reverse):
+  RF Front-end → Downconversion
+    ↓
+  Matched Filter / Sampling
+    ↓
+  Equalization / Synchronization
+    ↓
+  Demapper → Deinterleaver → Decoder
+            </pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Applications and extra info -->
+      <div class="bd-card">
+        <div class="small-title">Top 10 Applications (widely used)</div>
+        <ul class="app-list" style="margin-top:8px">
+          <li>Digital cable TV (QAM-based cable systems)</li>
+          <li>Wi‑Fi (IEEE 802.11ac/ax use 64/256-QAM)</li>
+          <li>Cellular downlink (LTE, 4G/5G adaptive QAM)</li>
+          <li>DSL technologies (e.g., VDSL)</li>
+          <li>Satellite broadband links</li>
+          <li>Microwave backhaul & point-to-point radios</li>
+          <li>Optical coherent communications (higher-order QAM)</li>
+          <li>Cable modem PHY layers (DOCSIS)</li>
+          <li>Software-defined radio research & labs</li>
+          <li>High-speed modems and telemetry systems</li>
+        </ul>
+
+        <div style="margin-top:12px">
+          <div class="small-title">Working ranges summary</div>
+          <div class="small-muted" style="line-height:1.5">
+            These are approximate nominal SNR ranges where each modulation is commonly usable for acceptable BER in many practical systems (actual required SNR depends on coding, filters and target BER):
+            <ul style="margin-left:16px">
+              <li><strong>4-QAM (QPSK):</strong> ~8–12 dB</li>
+              <li><strong>16-QAM:</strong> ~16–22 dB</li>
+              <li><strong>64-QAM:</strong> ~22–28 dB</li>
+              <li><strong>256-QAM:</strong> ~28–35 dB</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small-title">Quick reference formulas</div>
+          <div class="pre-block" style="font-family:monospace;">
+Bits per symbol:
+  b = log2(M)
+
+SNR (linear) from dB:
+  SNR_linear = 10^(SNR_dB / 10)
+
+High‑SNR SER approximate for square M‑QAM:
+  SER ≈ 4*(1 - 1/√M) * Q( sqrt( (3/(M-1)) * SNR_linear ) )
+
+Where Q(x) is the tail probability of a standard normal distribution.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SIMULATION -->
+  <section id="simulation" class="page" role="region" aria-labelledby="simulation">
+    <h2>🔬 Simulation</h2>
+
+    <div class="grid">
+      <!-- Left: controls -->
+      <div>
+        <div class="input-group">
+          <label for="modSelect">Modulation (M)</label>
+          <select id="modSelect" aria-label="Modulation">
+            <option value="4">4-QAM (QPSK)</option>
+            <option value="16">16-QAM</option>
+            <option value="64">64-QAM</option>
+            <option value="256">256-QAM</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Input Mode</label>
+          <div class="controls-row">
+            <label class="toggle"><input type="radio" name="inputMode" value="bits" checked> Bit-based</label>
+            <label class="toggle"><input type="radio" name="inputMode" value="symbols"> Symbol-based</label>
+          </div>
+          <div id="symbolInputArea" style="display:none;margin-top:8px">
+            <label for="symbolText">Symbols (comma-separated indices or 'rand'):</label>
+            <input id="symbolText" type="text" placeholder="e.g. 0,1,2,3 or rand">
+            <div class="small-muted">Symbol indices go from 0 .. M-1 (left-to-right row-major mapping)</div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="numBits">Number of Bits (for bit-based) / Symbols (for symbol-based)</label>
+          <input id="numBits" type="number" min="4" max="20000" step="1" value="1024">
+          <div class="small-muted">If bit-based: must be multiple of bits-per-symbol (auto-adjusted).</div>
+        </div>
+
+        <div class="input-group">
+          <label>SNR (dB): <span id="snrVal" class="small-muted">20</span></label>
+          <div class="slider-row">
+            <input id="snr" type="range" min="0" max="30" step="0.5" value="20">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="carrierFreq">Carrier frequency (Hz)</label>
+          <input id="carrierFreq" type="number" min="100" max="200000" step="100" value="2000">
+        </div>
+
+        <div class="input-group">
+          <label for="symbolDuration">Symbol length (ms)</label>
+          <input id="symbolDuration" type="number" min="0.01" max="1000" step="0.01" value="0.5">
+          <div class="small-muted">Symbol duration controls time resolution of modulated waveform.</div>
+        </div>
+
+        <div class="input-group">
+          <label for="symbolRate">Symbol rate (symbols/sec)</label>
+          <input id="symbolRate" type="number" min="1" max="1000000" step="1" value="2000">
+        </div>
+
+        <div class="controls-row" style="margin-top:12px">
+          <button id="runSim" class="btn">▶ Run Simulation</button>
+          <button id="resetBtn" class="btn" style="background:#999">Reset</button>
+        </div>
+
+        <div class="results" style="margin-top:14px">
+          <div class="card"><div class="label">Total Bits</div><div class="value" id="outTotalBits">0</div></div>
+          <div class="card"><div class="label">Bits/sec</div><div class="value" id="outBitRate">0 Mbps</div></div>
+          <div class="card"><div class="label">Symbol Rate</div><div class="value" id="outSymbolRate">0 sym/s</div></div>
+          <div class="card"><div class="label">BER</div><div class="value" id="outBER">0</div></div>
+          <div class="card"><div class="label">SER</div><div class="value" id="outSER">0</div></div>
+        </div>
+
+        <div class="footer-note">
+          <strong>Note:</strong> For large bit counts the simulation approximates performance; set samples moderate for waveform plotting.
+        </div>
+
+      </div>
+
+      <!-- Right: visualizations -->
+      <div>
+        <div style="background:#fff;padding:12px;border-radius:8px;border:2px solid #eef0ff">
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+            <strong>Constellation Diagram</strong>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot blue"></div><div class="small">Ideal</div></div>
+              <div class="legend-item"><div class="legend-dot red"></div><div class="small">Received</div></div>
+            </div>
+          </div>
+          <div id="constellationPlot" style="height:360px;margin-top:8px"></div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div style="background:#fff;padding:12px;border-radius:8px;border:2px solid #eef0ff">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <strong>Time-domain Waveform</strong>
+            <div>
+              <label style="margin-right:8px"><input id="toggleNoisy" type="checkbox" checked> Show noisy</label>
+              <button id="zoomReset" class="btn" style="background:#2f3ea3;padding:6px 10px">Reset Zoom</button>
+            </div>
+          </div>
+          <div id="waveformPlot" style="height:320px;margin-top:8px"></div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div style="background:#fff;padding:12px;border-radius:8px;border:2px solid #eef0ff;margin-top:8px">
+          <strong>Bit Comparison (first 200 bits)</strong>
+          <div id="bitCompare" class="codebox" style="height:120px;margin-top:8px;white-space:pre-wrap;word-break:break-word"></div>
+        </div>
+      </div>
+    </div> <!-- end grid -->
+
+    <div class="stage">
+      <h3>Details</h3>
+      <!-- Changed class to 'details-text' so simulation text is shown as normal readable text (keeps newlines) -->
+      <div id="detailedInfo" class="details-text">
+        No simulation run yet.
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="page" role="region" aria-labelledby="faq">
+    <h2>❓ FAQ</h2>
+    <h4>Q: What is the difference between bit-based and symbol-based input?</h4>
+    <p>A: Bit-based input generates a random bit stream and groups bits into symbols according to bits-per-symbol. Symbol-based input allows you to explicitly enter symbol indices or use 'rand' to generate random symbol indices.</p>
+
+    <h4 style="margin-top:8px;">Q: How does SNR affect the constellation?</h4>
+    <p>A: Higher SNR (dB) means less noise and tighter clusters around ideal constellation points. Lower SNR spreads the received points and increases the probability of incorrect nearest-neighbor decisions, raising BER and SER.</p>
+
+    <h4 style="margin-top:8px;">Q: Are Gray coding and bit-mapping used here?</h4>
+    <p>A: This lab uses a simple binary index mapping (row-major) for clarity and teaching. Gray mapping reduces bit errors for single-symbol errors and can be added as an exercise.</p>
+
+    <h4 style="margin-top:8px;">Q: Can I use this simulator for performance benchmarking?</h4>
+    <p>A: The simulator is intended for demonstration and teaching. For rigorous performance benchmarking (large sample sweeps, Monte Carlo accuracy), use dedicated tools (MATLAB, Python with comms libraries) and ensure sufficient sample counts.</p>
+
+    <h4 style="margin-top:8px;">Q: What should I change to make waveforms more detailed?</h4>
+    <p>A: Increase samples-per-symbol in the code (not exposed directly in UI) or increase symbol duration and sampling frequency. For presentations, moderate sampling with clear axis labels works best.</p>
+
+    <!-- Extra FAQ entries -->
+    <h4 style="margin-top:8px;">Q: Why is 256-QAM more sensitive to non-linearities?</h4>
+    <p>A: Because constellation points are closer together, any amplitude/phase distortion (e.g., amplifier non-linearity) shifts points more likely across decision boundaries. Linearization and high SNR are needed for reliable 256-QAM links.</p>
+
+    <h4 style="margin-top:8px;">Q: How can BER be reduced without increasing SNR?</h4>
+    <p>A: Use forward error correction (FEC), interleaving, better pulse shaping, equalization to combat channel impairments, or lower the modulation order.</p>
+  </section>
+
+  <!-- REFERENCES -->
+  <section id="references" class="page" role="region" aria-labelledby="references">
+    <h2>📖 References</h2>
+    <ul>
+      <li>John G. Proakis & Masoud Salehi — Digital Communications (classic textbook covering modulation, detection, and channel models)</li>
+      <li>Simon Haykin — Communication Systems (concepts on modulation and noise performance)</li>
+      <li>MATLAB Communications Toolbox examples — practical implementations and BER vs SNR simulations</li>
+      <li>GNU Radio documentation — practical software-defined radio examples and QAM implementations</li>
+      <li>Sklar, B. — Digital Communications: Fundamentals and Applications</li>
+      <li>IEEE tutorials and university lecture notes on QAM & AWGN modeling</li>
+      <li>Online references: 3GPP specifications (for cellular adaptive modulation details)</li>
+    </ul>
+  </section>
+
+</div>
+
+<script>
+/* ---- Utility & Simulation Engine ---- */
+document.addEventListener('DOMContentLoaded', () => {
+  // Elements
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const pages = document.querySelectorAll('.page');
+  navBtns.forEach(btn => btn.addEventListener('click', () => {
+    navBtns.forEach(b=>b.classList.remove('active'));
+    pages.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.page).classList.add('active');
+  }));
+
+  // Controls
+  const modSelect = document.getElementById('modSelect');
+  const inputModeRadios = document.getElementsByName('inputMode');
+  const symbolInputArea = document.getElementById('symbolInputArea');
+  const symbolText = document.getElementById('symbolText');
+  const numBitsEl = document.getElementById('numBits');
+  const snrEl = document.getElementById('snr');
+  const snrVal = document.getElementById('snrVal');
+  const carrierFreq = document.getElementById('carrierFreq');
+  const symbolDuration = document.getElementById('symbolDuration');
+  const symbolRate = document.getElementById('symbolRate');
+  const runBtn = document.getElementById('runSim');
+  const resetBtn = document.getElementById('resetBtn');
+  const toggleNoisy = document.getElementById('toggleNoisy');
+  const zoomReset = document.getElementById('zoomReset');
+
+  // Outputs
+  const outTotalBits = document.getElementById('outTotalBits');
+  const outBitRate = document.getElementById('outBitRate');
+  const outSymbolRate = document.getElementById('outSymbolRate');
+  const outBER = document.getElementById('outBER');
+  const outSER = document.getElementById('outSER');
+  const bitCompare = document.getElementById('bitCompare');
+  const detailedInfo = document.getElementById('detailedInfo');
+
+  // Plots
+  const constellationDiv = document.getElementById('constellationPlot');
+  const waveformDiv = document.getElementById('waveformPlot');
+
+  // Plotly initial blank states
+  Plotly.newPlot(constellationDiv, [{x:[],y:[],mode:'markers'}], {title:'Constellation'}, {responsive:true});
+  Plotly.newPlot(waveformDiv, [{x:[],y:[],mode:'lines'}], {title:'Waveform'}, {responsive:true});
+
+  // update SNR label
+  snrEl.addEventListener('input', ()=> snrVal.textContent = snrEl.value);
+
+  // show/hide symbol input area
+  inputModeRadios.forEach(r => r.addEventListener('change', ()=> {
+    if(document.querySelector('input[name="inputMode"]:checked').value === 'symbols') {
+      symbolInputArea.style.display = 'block';
+      numBitsEl.previousElementSibling.textContent = 'Number of Symbols (for symbol-based) / Bits (for bit-based)';
+    } else {
+      symbolInputArea.style.display = 'none';
+      numBitsEl.previousElementSibling.textContent = 'Number of Bits (for bit-based) / Symbols (for symbol-based)';
+    }
+  }));
+
+  // QAM config helper
+  function getConfig(M) {
+    const bps = Math.round(Math.log2(M));
+    return {M, bitsPerSymbol:bps, sqrtM:Math.sqrt(M)};
+  }
+
+  // Build constellation mapping row-major (I left->right, Q bottom->top)
+  function generateConstellationPoints(M) {
+    const sqrtM = Math.sqrt(M);
+    const points = [];
+    // For even sqrtM, levels: -(sqrtM-1), -(sqrtM-3), ..., (sqrtM-1)
+    const levels = [];
+    for(let k=0;k<sqrtM;k++){
+      levels.push(2*k - (sqrtM-1));
+    }
+    // Map index: row-major (Q rows then I columns)
+    for(let q=0;q<sqrtM;q++){
+      for(let i=0;i<sqrtM;i++){
+        // I = levels[i], Q = levels[q]
+        points.push({I:levels[i], Q:levels[q]});
+      }
+    }
+    return points;
+  }
+
+  // Bits -> symbol indices (MSB first in chunk)
+  function bitsToSymbolIndices(bits, bitsPerSymbol) {
+    const syms = [];
+    for(let i=0;i<bits.length;i+=bitsPerSymbol){
+      const chunk = bits.slice(i,i+bitsPerSymbol);
+      if(chunk.length < bitsPerSymbol) break;
+      const idx = parseInt(chunk.join(''),2);
+      syms.push(idx);
+    }
+    return syms;
+  }
+
+  // Random bits
+  function randomBits(n){ return Array.from({length:n},()=>Math.random()<0.5?0:1);}
+
+  // Build mapped symbol complex values
+  function symbolsToIQ(symbolIndices, constellation) {
+    return symbolIndices.map(idx => {
+      const p = constellation[idx];
+      return {I:p.I, Q:p.Q, idx};
+    });
+  }
+
+  // Add AWGN to complex symbols
+  function addAWGNtoSymbols(symbolsIQ, snrDb) {
+    if(symbolsIQ.length===0) return [];
+    // compute average signal power per dimension
+    const sigPower = symbolsIQ.reduce((s,x)=>s + x.I*x.I + x.Q*x.Q,0)/symbolsIQ.length;
+    const snrLinear = Math.pow(10, snrDb/10);
+    const noisePower = sigPower / snrLinear;
+    const noiseStd = Math.sqrt(noisePower/2);
+    return symbolsIQ.map(s => {
+      // gaussian using Box-Muller
+      function gauss(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+      return {I: s.I + gauss()*noiseStd, Q: s.Q + gauss()*noiseStd};
+    });
+  }
+
+  // Nearest-neighbor demap
+  function demapSymbols(rxIQ, constellation) {
+    const rxIdx = [];
+    rxIQ.forEach(p => {
+      let minD = Infinity, minIdx=0;
+      for(let i=0;i<constellation.length;i++){
+        const d = (p.I-constellation[i].I)*2 + (p.Q-constellation[i].Q)*2;
+        if(d<minD){minD=d;minIdx=i;}
+      }
+      rxIdx.push(minIdx);
+    });
+    return rxIdx;
+  }
+
+  // symbol indices -> bits (per symbol bitsPerSymbol)
+  function symbolIndicesToBits(indices, bitsPerSymbol) {
+    const bits=[];
+    indices.forEach(i=>{
+      const s = i.toString(2).padStart(bitsPerSymbol,'0');
+      s.split('').forEach(ch=>bits.push(Number(ch)));
+    });
+    return bits;
+  }
+
+  // Time-domain modulated waveform generator
+  function generateWaveform(IQSymbols, fc, symbolDurMs, samplesPerSymbol=64) {
+    // samplesPerSymbol chosen to keep plots smooth; can be adjusted based on symbolDur and fc
+    const Ts = symbolDurMs/1000; // symbol duration seconds
+    const fs = samplesPerSymbol / Ts; // sampling frequency
+    const dt = 1/fs;
+    const t = [];
+    const y = [];
+    let time=0;
+    for(let k=0;k<IQSymbols.length;k++){
+      const I = IQSymbols[k].I;
+      const Q = IQSymbols[k].Q;
+      for(let n=0;n<samplesPerSymbol;n++){
+        t.push(time);
+        // s(t) = I*cos(2πfct) - Q*sin(2πfct)  (conventional)
+        y.push( I*Math.cos(2*Math.PI*fc*time) - Q*Math.sin(2*Math.PI*fc*time) );
+        time += dt;
+      }
+    }
+    return {t,y,fs};
+  }
+
+  // Plot constellation
+  function plotConstellation(constellation, txPoints, rxPoints) {
+    const idealTrace = {x: constellation.map(p=>p.I), y: constellation.map(p=>p.Q),
+      mode:'markers', type:'scatter', name:'Ideal (symbols)', marker:{color:'#2196F3',size:12}};
+    const txTrace = {x: txPoints.map(p=>p.I), y: txPoints.map(p=>p.Q),
+      mode:'markers', type:'scatter', name:'Transmitted (no noise)', marker:{color:'#0d47a1',size:8,opacity:0.9}};
+    const rxTrace = {x: rxPoints.map(p=>p.I), y: rxPoints.map(p=>p.Q),
+      mode:'markers', type:'scatter', name:'Received (noisy)', marker:{color:'#f44336',size:6,opacity:0.6}};
+    const layout = {
+      title:'Constellation Diagram', xaxis:{title:'In-phase (I)', zeroline:true, showgrid:true}, yaxis:{title:'Quadrature (Q)', zeroline:true, showgrid:true},
+      hovermode:'closest', height:380
+    };
+    const cfg = {responsive:true, scrollZoom:true, displayModeBar:true};
+    Plotly.react(constellationDiv, [idealTrace, txTrace, rxTrace], layout, cfg);
+  }
+
+  // Plot waveform (clean + noisy overlay)
+  function plotWaveform(cleanWave, noisyWave) {
+    const cleanTrace = {x: cleanWave.t, y: cleanWave.y, mode:'lines', name:'Clean QAM waveform', line:{width:1}};
+    const traces = [cleanTrace];
+    if(toggleNoisy.checked && noisyWave){
+      traces.push({x: noisyWave.t, y: noisyWave.y, mode:'lines', name:'Noisy waveform', line:{width:1, dash:'dot'}});
+    }
+    const layout = {title:'Time-domain QAM waveform', xaxis:{title:'Time (s)'}, height:360};
+    const cfg = {responsive:true, scrollZoom:true, displayModeBar:true};
+    Plotly.react(waveformDiv, traces, layout, cfg);
+  }
+
+  // Main simulation runner
+  runBtn.addEventListener('click', ()=> {
+    const M = Number(modSelect.value);
+    const cfg = getConfig(M);
+    const constellation = generateConstellationPoints(M);
+
+    // Input mode
+    const mode = document.querySelector('input[name="inputMode"]:checked').value;
+    let symbolIndices = [];
+    let txBits = [];
+    let desiredCount = Number(numBitsEl.value);
+
+    if(mode === 'bits'){
+      // ensure bits multiple of bitsPerSymbol
+      const bitsPerSymbol = cfg.bitsPerSymbol;
+      let desiredBits = Math.max(bitsPerSymbol, desiredCount);
+      const remainder = desiredBits % bitsPerSymbol;
+      if(remainder!==0) desiredBits = desiredBits - remainder; // floor to multiple
+      if(desiredBits===0) desiredBits = bitsPerSymbol;
+      if(desiredBits !== Number(numBitsEl.value)){
+        numBitsEl.value = desiredBits;
+        desiredCount = desiredBits;
+        // alert? we'll just update silently
+      }
+      txBits = randomBits(desiredBits);
+      symbolIndices = bitsToSymbolIndices(txBits, bitsPerSymbol);
+    } else {
+      // symbol-based: parse symbolText OR random
+      let desiredSymbols = Math.max(1, desiredCount);
+      // try parse symbolText
+      const txt = symbolText.value.trim();
+      if(txt.length===0 || txt.toLowerCase()==='rand'){
+        // generate random symbols
+        for(let i=0;i<desiredSymbols;i++) symbolIndices.push(Math.floor(Math.random()*M));
+      } else {
+        // parse comma separated ints
+        const tokens = txt.split(',').map(s=>s.trim()).filter(s=>s.length);
+        for(let i=0;i<desiredSymbols;i++){
+          const tok = tokens[i % tokens.length];
+          const val = Number(tok);
+          if(Number.isInteger(val) && val>=0 && val<M) symbolIndices.push(val);
+          else symbolIndices.push( Math.floor(Math.random()*M) );
+        }
+      }
+      // convert symbols -> bits for comparison
+      txBits = symbolIndicesToBits(symbolIndices, cfg.bitsPerSymbol);
+      // ensure numBits field shows equivalent bits if user provided number earlier
+      numBitsEl.value = txBits.length;
+    }
+
+    // Prepare transmitted IQ
+    const txIQ = symbolsToIQ(symbolIndices, constellation);
+
+    // Add noise
+    const snr = Number(snrEl.value);
+    const rxIQ = addAWGNtoSymbols(txIQ, snr);
+
+    // Demap
+    const rxIndices = demapSymbols(rxIQ, constellation);
+    const rxBits = symbolIndicesToBits(rxIndices, cfg.bitsPerSymbol);
+
+    // Errors
+    const totalBits = Math.min(txBits.length, rxBits.length);
+    let bitErrors=0;
+    for(let i=0;i<totalBits;i++) if(txBits[i]!==rxBits[i]) bitErrors++;
+    // symbol errors
+    let symErrors=0;
+    for(let i=0;i<symbolIndices.length;i++) if(symbolIndices[i] !== rxIndices[i]) symErrors++;
+
+    const BER = (bitErrors/totalBits) || 0;
+    const SER = (symErrors/symbolIndices.length) || 0;
+    const bitRate = Number(symbolRate.value) * cfg.bitsPerSymbol; // bits per second based on user symbol rate input
+    const symbolRateVal = Number(symbolRate.value);
+
+    // Time-domain waveforms
+    const samplesPerSymbol = 60; // reasonable default
+    const cleanWave = generateWaveform(txIQ, Number(carrierFreq.value), Number(symbolDuration.value), samplesPerSymbol);
+    // to create noisy waveform, we map rxIQ to wave using same method but preserving rxIQ order
+    const rxIQ_for_wave = rxIQ.map((p, idx) => ({I: txIQ[idx].I + (p.I - txIQ[idx].I), Q: txIQ[idx].Q + (p.Q - txIQ[idx].Q)}));
+    // rxIQ already noisy; build waveform from rxIQ
+    const noisyWave = generateWaveform(rxIQ_for_wave, Number(carrierFreq.value), Number(symbolDuration.value), samplesPerSymbol);
+
+    // update UI results
+    outTotalBits.textContent = totalBits;
+    outBitRate.textContent = (bitRate/1e6).toFixed(3) + ' Mbps';
+    outSymbolRate.textContent = symbolRateVal.toLocaleString() + ' sym/s';
+    outBER.textContent = BER.toExponential(3);
+    outSER.textContent = SER.toExponential(3);
+
+    // bit compare
+    const maxDisplay = 200;
+    const displayBits = Math.min(maxDisplay, totalBits);
+    const txSample = txBits.slice(0, displayBits).join('');
+    const rxSample = rxBits.slice(0, displayBits).join('');
+    // highlight mismatches by wrapping with <mark>- but we use plaintext; show mismatches as uppercase/lowercase or with markers
+    let compText = '';
+    for(let i=0;i<displayBits;i++){
+      compText += (txBits[i]===rxBits[i]) ? txBits[i] : ('['+rxBits[i]+']');
+    }
+    bitCompare.textContent = 'TX: ' + txBits.slice(0,displayBits).join('') + '\nRX: ' + rxBits.slice(0,displayBits).join('') + '\n\nNote: mismatches in RX show as square-bracketed bits above.';
+
+    // detailed info
+    detailedInfo.textContent = `
+M = ${M} (${cfg.bitsPerSymbol} bits/symbol)
+Total symbols transmitted: ${symbolIndices.length}
+Total bits compared: ${totalBits}
+Bit errors: ${bitErrors}
+Symbol errors: ${symErrors}
+BER = ${BER}
+SER = ${SER}
+SNR (dB) = ${snr}
+Carrier frequency = ${carrierFreq.value} Hz
+Symbol duration = ${symbolDuration.value} ms
+Sampling per symbol (plot) = ${samplesPerSymbol}
+(Computed waveforms use s(t)=I*cos(2πfct) - Q*sin(2πfct))
+    `.trim();
+
+    // Plot constellation & waveform
+    // For traces: ideal constellation points, transmitted points, received noisy points
+    plotConstellation(constellation, txIQ, rxIQ);
+    plotWaveform(cleanWave, noisyWave);
+
+    // zoom reset binds
+    zoomReset.onclick = ()=> {
+      Plotly.relayout(waveformDiv, {
+        'xaxis.autorange': true,
+        'yaxis.autorange': true
+      });
+      Plotly.relayout(constellationDiv, {'xaxis.autorange': true,'yaxis.autorange': true});
+    };
+  }); // runBtn
+
+  // Reset
+  resetBtn.addEventListener('click', ()=> {
+    // Simple reset: reload initial state values only (not full page reload)
+    modSelect.value = '4';
+    document.querySelector('input[name="inputMode"][value="bits"]').checked = true;
+    symbolInputArea.style.display = 'none';
+    symbolText.value = '';
+    numBitsEl.value = 1024;
+    snrEl.value = 20; snrVal.textContent = '20';
+    carrierFreq.value = 2000;
+    symbolDuration.value = 0.5;
+    symbolRate.value = 2000;
+    outTotalBits.textContent = '0';
+    outBitRate.textContent = '0 Mbps';
+    outSymbolRate.textContent = '0 sym/s';
+    outBER.textContent = '0';
+    outSER.textContent = '0';
+    bitCompare.textContent = '';
+    detailedInfo.textContent = 'No simulation run yet.';
+    Plotly.react(constellationDiv, [{x:[],y:[],mode:'markers'}], {title:'Constellation'}, {responsive:true});
+    Plotly.react(waveformDiv, [{x:[],y:[],mode:'lines'}], {title:'Waveform'}, {responsive:true});
+  });
+
+  // toggle noisy: replot waveform to show/hide
+  toggleNoisy.addEventListener('change', ()=> {
+    // Re-run waveform plotting if last run exists; easiest: click Run again for precise overlay
+    // But attempt to reuse last plotted arrays (Plotly.data)
+    // For reliability, instruct user to re-run simulation; we'll also try to toggle overlay if possible
+    try {
+      const gd = waveformDiv;
+      if(!gd.data || gd.data.length===0) return;
+      // if there's a second trace (noisy), hide/show by update
+      if(gd.data.length>1){
+        const update = {visible: toggleNoisy.checked ? true : 'legendonly'};
+        Plotly.restyle(gd, update, [1]);
+      }
+    } catch(e){}
+  });
+
+  // initial UI values
+  snrVal.textContent = snrEl.value;
+}); // DOMContentLoaded end
+</script>
+
+</body>
+</html>
