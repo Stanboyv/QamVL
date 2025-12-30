@@ -1,114 +1,79 @@
+/* General page styling */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background-color: #f4f6f8;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
 }
 
 header {
-    display: flex;
-    align-items: center;
-    background: #ffffff;
-    padding: 12px 20px;
-    border-bottom: 3px solid #003366;
+  background: #004080;
+  color: white;
+  padding: 1em;
+  text-align: center;
 }
 
-header img {
-    height: 55px;
-    margin-right: 15px;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 20px;
-    color: #003366;
-}
-
-header p {
-    margin: 0;
-    font-size: 14px;
-    color: #444;
-}
-
-nav {
-    background-color: #003366;
-    padding: 8px 20px;
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
 }
 
 nav a {
-    color: white;
-    margin-right: 15px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-nav a:hover {
-    text-decoration: underline;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 section {
-    background: white;
-    margin: 15px;
-    padding: 20px;
-    border-radius: 5px;
+  padding: 2em;
+  margin: 1em auto;
+  max-width: 900px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 h2 {
-    color: #003366;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 5px;
+  color: #004080;
+  margin-top: 0;
 }
 
-.sim-container {
-    display: flex;
-    gap: 20px;
+h3 {
+  color: #0066cc;
 }
 
-.controls {
-    width: 260px;
-    background: #eef2f5;
-    padding: 15px;
-    border-radius: 5px;
+.plot {
+  width: 100%;
+  height: 400px;
+  margin-top: 20px;
 }
 
-.controls label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
+button {
+  background: #004080;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-.controls input,
-.controls select,
-.controls button {
-    width: 100%;
-    margin-top: 5px;
-    padding: 6px;
+button:hover {
+  background: #0066cc;
 }
 
-.controls button {
-    margin-top: 15px;
-    background-color: #003366;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.controls button:hover {
-    background-color: #0055aa;
-}
-
-.plots {
-    flex: 1;
-}
-
-#constellation,
-#waveform {
-    height: 350px;
+input[type="radio"] {
+  margin-right: 5px;
 }
 
 footer {
-    background-color: #003366;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    margin-top: 20px;
+  background: #004080;
+  color: white;
+  text-align: center;
+  padding: 1em;
+  margin-top: 2em;
 }
