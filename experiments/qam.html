@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QAM Virtual Lab</title>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+    <link rel="stylesheet" href="../css/lab.css">
+</head>
+
+<body>
+
+<header>
+    <img src="../images/logo.png" alt="Lab Logo">
+    <div>
+        <h1>Digital Communication Virtual Laboratory</h1>
+        <p>Quadrature Amplitude Modulation (QAM)</p>
+    </div>
+</header>
+
+<nav>
+    <a href="#aim">Aim</a>
+    <a href="#theory">Theory</a>
+    <a href="#procedure">Procedure</a>
+    <a href="#pretest">Pretest</a>
+    <a href="#simulation">Simulation</a>
+    <a href="#posttest">Posttest</a>
+    <a href="#results">Results</a>
+</nav>
+
+<section id="aim">
+<h2>Aim</h2>
+<p>
+To study and simulate Quadrature Amplitude Modulation (QAM) and analyze its constellation diagram,
+time-domain waveform, and Bit Error Rate (BER) performance under noise.
+</p>
+</section>
+
+<section id="theory">
+<h2>Theory</h2>
+<p>
+Quadrature Amplitude Modulation (QAM) is a digital modulation technique that conveys data by changing
+the amplitude of two carrier waves that are out of phase by 90 degrees.
+</p>
+
+<p>
+In M-QAM, each symbol represents log<sub>2</sub>(M) bits. Higher-order QAM improves bandwidth efficiency
+but requires higher SNR for reliable communication.
+</p>
+
+<p><b>Mathematical Representation:</b></p>
+<p>
+s(t) = I(t)cos(2πf<sub>c</sub>t) − Q(t)sin(2πf<sub>c</sub>t)
+</p>
+</section>
+
+<section id="procedure">
+<h2>Procedure</h2>
+<ol>
+    <li>Select the modulation order (M-QAM).</li>
+    <li>Generate random binary data.</li>
+    <li>Map bits to QAM symbols.</li>
+    <li>Add AWGN noise to the signal.</li>
+    <li>Plot constellation and waveform.</li>
+    <li>Demodulate received symbols.</li>
+    <li>Compute Bit Error Rate (BER).</li>
+</ol>
+</section>
+
+<section id="pretest">
+<h2>Pretest</h2>
+<ol>
+    <li>How many bits per symbol are used in 16-QAM?</li>
+    <li>What happens to BER when SNR decreases?</li>
+    <li>Which has better bandwidth efficiency: QPSK or 64-QAM?</li>
+</ol>
+</section>
+
+<section id="simulation">
+<h2>Simulation</h2>
+
+<div class="sim-container">
+    <div class="controls">
+        <label>Number of Bits</label>
+        <input type="number" id="numBits" value="200">
+
+        <label>Modulation Order</label>
+        <select id="modOrder">
+            <option value="4">4-QAM</option>
+            <option value="16">16-QAM</option>
+            <option value="64">64-QAM</option>
+        </select>
+
+        <label>SNR (dB)</label>
+        <input type="range" id="snr" min="0" max="30" value="15">
+        <span id="snrVal">15 dB</span>
+
+        <button onclick="runSimulation()">Run Simulation</button>
+
+        <p><b>BER:</b> <span id="berValue">-</span></p>
+    </div>
+
+    <div class="plots">
+        <div id="constellation"></div>
+        <div id="waveform"></div>
+    </div>
+</div>
+
+</section>
+
+<section id="posttest">
+<h2>Posttest</h2>
+<ol>
+    <li>Why does higher-order QAM require higher SNR?</li>
+    <li>What is the trade-off between bandwidth and BER?</li>
+</ol>
+</section>
+
+<section id="results">
+<h2>Results</h2>
+<p>
+From the simulation, it is observed that as the modulation order increases, spectral efficiency
+improves but the system becomes more sensitive to noise, resulting in higher BER at lower SNR values.
+</p>
+</section>
+
+<footer>
+<p>© 2025 Digital Communication Virtual Lab | Department of ECE</p>
+</footer>
+
+<script src="../js/qam.js"></script>
+</body>
+</html>
