@@ -64,9 +64,34 @@ function runSimulation() {
   const ber = errors / symbols.length;
 
   // Show results
-  document.getElementById("resultsText").innerHTML =
-    `<p>Simulation complete for ${M}-QAM at SNR = ${snrDb} dB.<br>
-     Estimated Bit Error Rate (BER): ${ber.toFixed(4)}</p>`;
+// Decide safe ranges based on QAM order
+let safeRange = 0;
+if (M === 4) safeRange = 10;
+else if (M === 16) safeRange = 18;
+else if (M === 64) safeRange = 28;
+else if (M === 256) safeRange = 35;
+
+// Color coding based on SNR vs safe range
+let berColor = (snrDb >= safeRange) ? "green" : "red";
+let statusText = (snrDb >= safeRange) ? "Safe Range" : "Unsafe Range";
+
+// Show results with color-coded BER
+// Decide safe ranges based on QAM order
+let safeRange = 0;
+if (M === 4) safeRange = 10;
+else if (M === 16) safeRange = 18;
+else if (M === 64) safeRange = 28;
+else if (M === 256) safeRange = 35;
+
+// Color coding based on SNR vs safe range
+let berColor = (snrDb >= safeRange) ? "green" : "red";
+let statusText = (snrDb >= safeRange) ? "Safe Range" : "Unsafe Range";
+
+// Show results with color-coded BER
+document.getElementById("resultsText").innerHTML =
+  `<p>Simulation complete for <strong>${M}-QAM</strong> at SNR = ${snrDb} dB.<br>
+   Estimated Bit Error Rate (BER): <span style="color:${berColor}; font-weight:bold;">
+   ${ber.toFixed(4)} (${statusText})</span></p>`;
 }
 
 // Gaussian noise generator
