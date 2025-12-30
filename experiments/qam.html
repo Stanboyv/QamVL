@@ -1,222 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Quadrature Amplitude Modulation (QAM) Lab</title>
-  <link rel="stylesheet" href="../css/lab.css">
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="../js/qam.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadrature Amplitude Modulation (QAM) Lab - Virtual Laboratory</title>
+    <link rel="stylesheet" href="../css/lab.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23001a33' width='100' height='100'/><circle cx='50' cy='50' r='30' fill='%2300FFFF'/><circle cx='50' cy='50' r='20' fill='%23001a33'/><text x='50' y='60' font-size='40' fill='%2300FFFF' text-anchor='middle' font-weight='bold'>Q</text></svg>">
 </head>
 <body>
-  <header>
-    <h1>Quadrature Amplitude Modulation (QAM) Experiment</h1>
-    <nav>
-      <ul>
-        <li><a href="#aim">Aim</a></li>
-        <li><a href="#theory">Theory</a></li>
-        <li><a href="#pretest">Pretest</a></li>
-        <li><a href="#simulation">Simulation</a></li>
-        <li><a href="#posttest">Posttest</a></li>
-        <li><a href="#results">Results & Observations</a></li>
-      </ul>
+    <header>
+        <div class="container">
+            <div class="logo">Quadrature Amplitude Modulation (QAM) - Virtual Laboratory</div>
+            <svg style="width: 60px; height: 60px;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#00FFFF" stroke-width="2"/>
+                <circle cx="50" cy="50" r="35" fill="#FF1493" opacity="0.3"/>
+                <circle cx="50" cy="50" r="8" fill="#00FFFF"/>
+                <text x="50" y="65" font-size="30" fill="#00FFFF" text-anchor="middle" font-weight="bold">QAM</text>
+            </svg>
+        </div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab-button active" onclick="showTab('aim', event)">Aim</button>
+        <button class="tab-button" onclick="showTab('theory', event)">Theory</button>
+        <button class="tab-button" onclick="showTab('pretest', event)">Pretest</button>
+        <button class="tab-button" onclick="showTab('simulation', event)">Simulation</button>
+        <button class="tab-button" onclick="showTab('posttest', event)">Posttest</button>
+        <button class="tab-button" onclick="showTab('results', event)">Results</button>
     </nav>
-  </header>
 
-  <main>
-    <!-- Aim -->
-    <section id="aim">
-      <h2>Aim</h2>
-      <p>To study Quadrature Amplitude Modulation (QAM) and visualize its constellation diagram, signal waveforms, and bit error rate using interactive simulations.</p>
-    </section>
+    <main class="container">
+        <section id="aim" class="tab-content active">
+            <h2>Aim of the Experiment</h2>
+            <p>To study and analyze Quadrature Amplitude Modulation (QAM) and visualize its constellation diagram, signal waveforms, and bit error rate using interactive simulations.</p>
+            <h3>Objectives:</h3>
+            <ul>
+                <li>Understand the principles of Quadrature Amplitude Modulation (QAM)</li>
+                <li>Visualize constellation diagrams for different QAM orders (4, 16, 64, 256)</li>
+                <li>Analyze the effect of noise on signal quality using SNR variations</li>
+                <li>Observe the relationship between modulation order, bandwidth efficiency, and error rates</li>
+                <li>Learn practical applications of QAM in modern communication systems</li>
+                <li>Understand the trade-offs between bandwidth efficiency and noise robustness</li>
+            </ul>
+        </section>
 
-    <!-- Theory -->
-    <section id="theory">
-      <h2>Theory</h2>
-      <p>
-        Quadrature Amplitude Modulation (QAM) combines amplitude modulation of two carriers in quadrature (90° phase difference).
-        It is widely used in digital communication systems such as Wi-Fi, LTE, and cable modems.
-      </p>
-      <ul>
-        <li><strong>Constellation Diagram:</strong> Represents symbols as points in the I-Q plane.</li>
-        <li><strong>Bit Mapping:</strong> Each symbol encodes multiple bits depending on modulation order (e.g., 16-QAM encodes 4 bits per symbol).</li>
-        <li><strong>Noise Impact:</strong> Higher-order QAM is more bandwidth-efficient but more susceptible to noise.</li>
-      </ul>
-    </section>
+        <section id="theory" class="tab-content">
+            <h2>Theory</h2>
+            <h3>Introduction to Quadrature Amplitude Modulation (QAM)</h3>
+            <p>Quadrature Amplitude Modulation (QAM) is a sophisticated modulation technique that combines amplitude modulation of two carriers that are 90° out of phase (in quadrature). It is widely used in digital communication systems such as Wi-Fi (802.11), LTE, 5G, cable modems, and satellite communications.</p>
+            <h3>Key Concepts</h3>
+            <ul>
+                <li><strong>In-Phase (I) and Quadrature (Q) Components:</strong> QAM modulates two orthogonal carriers simultaneously, allowing more information to be transmitted in the same bandwidth.</li>
+                <li><strong>Constellation Diagram:</strong> A graphical representation where each symbol is shown as a point in the I-Q plane.</li>
+                <li><strong>Bit Mapping:</strong> Each symbol encodes multiple bits: 4-QAM: 2 bits, 16-QAM: 4 bits, 64-QAM: 6 bits, 256-QAM: 8 bits</li>
+                <li><strong>Noise Impact:</strong> Higher-order QAM is more bandwidth-efficient but more susceptible to noise.</li>
+            </ul>
+        </section>
 
-    <!-- Pretest -->
-    <section id="pretest">
-      <h2>Pretest</h2>
-      <p>Answer the following questions before running the simulation:</p>
-      <ol>
-        <li>What does QAM stand for?<br>
-          <input type="radio" name="q1"> Quadrature Amplitude Modulation<br>
-          <input type="radio" name="q1"> Quadratic Analog Method<br>
-          <input type="radio" name="q1"> Quantum Amplitude Mapping
-        </li>
-        <li>How many bits per symbol are carried in 16-QAM?<br>
-          <input type="radio" name="q2"> 2 bits<br>
-          <input type="radio" name="q2"> 4 bits<br>
-          <input type="radio" name="q2"> 8 bits
-        </li>
-        <li>Why is QAM more bandwidth-efficient than BPSK?<br>
-          <input type="radio" name="q3"> It uses higher frequency carriers<br>
-          <input type="radio" name="q3"> It encodes multiple bits per symbol<br>
-          <input type="radio" name="q3"> It requires less power
-        </li>
-        <li>Which diagram shows QAM symbols?<br>
-          <input type="radio" name="q4"> Eye diagram<br>
-          <input type="radio" name="q4"> Constellation diagram<br>
-          <input type="radio" name="q4"> Frequency spectrum
-        </li>
-        <li>In 64-QAM, how many distinct points are in the constellation?<br>
-          <input type="radio" name="q5"> 16<br>
-          <input type="radio" name="q5"> 32<br>
-          <input type="radio" name="q5"> 64
-        </li>
-        <li>Which two components are combined in QAM?<br>
-          <input type="radio" name="q6"> Amplitude and Frequency<br>
-          <input type="radio" name="q6"> In-phase and Quadrature<br>
-          <input type="radio" name="q6"> Phase and Noise
-        </li>
-        <li>What is the minimum QAM order?<br>
-          <input type="radio" name="q7"> 2-QAM<br>
-          <input type="radio" name="q7"> 4-QAM<br>
-          <input type="radio" name="q7"> 8-QAM
-        </li>
-        <li>Which modulation scheme does QAM extend?<br>
-          <input type="radio" name="q8"> ASK and PSK<br>
-          <input type="radio" name="q8"> FSK<br>
-          <input type="radio" name="q8"> OFDM
-        </li>
-        <li>What is the main disadvantage of higher-order QAM?<br>
-          <input type="radio" name="q9"> Requires higher SNR<br>
-          <input type="radio" name="q9"> Uses more bandwidth<br>
-          <input type="radio" name="q9"> Slower transmission
-        </li>
-        <li>Which practical system uses QAM?<br>
-          <input type="radio" name="q10"> Wi-Fi<br>
-          <input type="radio" name="q10"> Morse code<br>
-          <input type="radio" name="q10"> AM radio
-        </li>
-      </ol>
-    </section>
+        <section id="pretest" class="tab-content">
+            <h2>Pre-Test (Before Simulation)</h2>
+            <p class="alert alert-info">📝 Answer the following 10 questions to test your understanding:</p>
+            <div class="quiz-container">
+                <div class="quiz-progress">
+                    <div>Progress: <span id="pretestProgress">0</span>/10 Answered</div>
+                    <div class="progress-bar"><div class="progress-fill" id="pretestProgressBar" style="width: 0%"></div></div>
+                </div>
+                <form id="pretestForm">
+                    <div class="quiz-question">
+                        <div class="question-number">Q1</div>
+                        <div class="question-text">What does QAM stand for?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q1" value="Quadrature Amplitude Modulation" required> Quadrature Amplitude Modulation</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q1" value="Quadratic Analog Method"> Quadratic Analog Method</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q1" value="Quantum Amplitude Mapping"> Quantum Amplitude Mapping</label>
+                        </div>
+                    </div>
 
-    <!-- Simulation -->
-    <section id="simulation">
-      <h2>Simulation</h2>
-      <p>Adjust parameters below and observe the constellation diagram and signal waveforms.</p>
-      <label for="qamOrder">QAM Order:</label>
-      <select id="qamOrder">
-        <option value="4">4-QAM</option>
-        <option value="16" selected>16-QAM</option>
-        <option value="64">64-QAM</option>
-      </select>
+                    <div class="quiz-question">
+                        <div class="question-number">Q2</div>
+                        <div class="question-text">How many bits per symbol in 16-QAM?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q2" value="2 bits" required> 2 bits</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q2" value="4 bits"> 4 bits</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q2" value="8 bits"> 8 bits</label>
+                        </div>
+                    </div>
 
-      <label for="snr">SNR (dB):</label>
-      <input type="number" id="snr" value="20">
+                    <div class="quiz-question">
+                        <div class="question-number">Q3</div>
+                        <div class="question-text">Why is QAM more bandwidth-efficient?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q3" value="Higher frequency" required> Higher frequency</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q3" value="Multiple bits per symbol"> Multiple bits per symbol</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q3" value="Less power"> Less power</label>
+                        </div>
+                    </div>
 
-      <button onclick="runSimulation()">Run Simulation</button>
+                    <div class="quiz-question">
+                        <div class="question-number">Q4</div>
+                        <div class="question-text">Which diagram shows QAM symbols?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q4" value="Eye diagram" required> Eye diagram</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q4" value="Constellation diagram"> Constellation diagram</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q4" value="Spectrum"> Spectrum</label>
+                        </div>
+                    </div>
 
-      <div id="constellation" class="plot"></div>
-      <div id="waveform" class="plot"></div>
-    </section>
+                    <div class="quiz-question">
+                        <div class="question-number">Q5</div>
+                        <div class="question-text">64-QAM constellation points?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q5" value="16" required> 16</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q5" value="32"> 32</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q5" value="64"> 64</label>
+                        </div>
+                    </div>
 
-   <!-- Posttest -->
-<section id="posttest">
-  <h2>Posttest</h2>
-  <p>Answer the following questions after running the simulation:</p>
-  <ol>
-    <li>Why does higher-order QAM require higher SNR?<br>
-      <input type="radio" name="pq1"> Constellation points are closer together<br>
-      <input type="radio" name="pq1"> It uses higher carrier frequencies<br>
-      <input type="radio" name="pq1"> It consumes more bandwidth
-    </li>
-    <li>What happens to the constellation points when SNR decreases?<br>
-      <input type="radio" name="pq2"> They remain fixed<br>
-      <input type="radio" name="pq2"> They spread out due to noise<br>
-      <input type="radio" name="pq2"> They disappear
-    </li>
-    <li>How does QAM balance bandwidth efficiency and error resilience?<br>
-      <input type="radio" name="pq3"> By increasing symbol rate<br>
-      <input type="radio" name="pq3"> By encoding more bits per symbol but requiring higher SNR<br>
-      <input type="radio" name="pq3"> By reducing modulation order
-    </li>
-    <li>What was observed when lowering SNR from 20 dB to 5 dB?<br>
-      <input type="radio" name="pq4"> Clearer constellation<br>
-      <input type="radio" name="pq4"> More scattered points and higher BER<br>
-      <input type="radio" name="pq4"> No change
-    </li>
-    <li>Which practical systems use QAM?<br>
-      <input type="radio" name="pq5"> Wi-Fi and LTE<br>
-      <input type="radio" name="pq5"> AM radio<br>
-      <input type="radio" name="pq5"> Morse code
-    </li>
-    <li>What does the constellation diagram represent?<br>
-      <input type="radio" name="pq6"> Frequency spectrum<br>
-      <input type="radio" name="pq6"> Symbol mapping in I-Q plane<br>
-      <input type="radio" name="pq6"> Noise power
-    </li>
-    <li>What happens to BER when SNR increases?<br>
-      <input type="radio" name="pq7"> BER decreases<br>
-      <input type="radio" name="pq7"> BER increases<br>
-      <input type="radio" name="pq7"> BER remains constant
-    </li>
-    <li>Which modulation is more robust to noise?<br>
-      <input type="radio" name="pq8"> 4-QAM<br>
-      <input type="radio" name="pq8"> 64-QAM<br>
-      <input type="radio" name="pq8"> 256-QAM
-    </li>
-    <li>In practice, how is QAM combined with OFDM?<br>
-      <input type="radio" name="pq9"> QAM symbols are mapped onto OFDM subcarriers<br>
-      <input type="radio" name="pq9"> OFDM replaces QAM<br>
-      <input type="radio" name="pq9"> QAM is used only for analog signals
-    </li>
-    <li>What did you observe about waveform distortion at low SNR?<br>
-      <input type="radio" name="pq10"> Smooth waveform<br>
-      <input type="radio" name="pq10"> Distorted waveform with noise<br>
-      <input type="radio" name="pq10"> No waveform
-    </li>
-  </ol>
-</section>
-<!-- Results & Observations -->
-<section id="results">
-  <h2>Results & Observations</h2>
-  <p>The simulation shows how noise affects symbol placement in the constellation diagram and the resulting bit error rate (BER). Below are detailed observations for different QAM orders:</p>
-  <div id="resultsText"></div>
+                    <div class="quiz-question">
+                        <div class="question-number">Q6</div>
+                        <div class="question-text">Components combined in QAM?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q6" value="Amplitude and Frequency" required> Amplitude and Frequency</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q6" value="In-phase and Quadrature"> In-phase and Quadrature</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q6" value="Phase and Noise"> Phase and Noise</label>
+                        </div>
+                    </div>
 
-  <h3>4-QAM (QPSK)</h3>
-  <ul>
-    <li>Constellation has 4 points arranged in quadrature.</li>
-    <li>Very robust to noise, suitable for low SNR channels.</li>
-    <li><strong>Working range:</strong> 6–10 dB SNR.</li>
-    <li><strong>Safest range:</strong> ≥10 dB ensures reliable communication with very low BER.</li>
-    <li>Used in satellite links and very noisy channels where reliability is critical.</li>
-  </ul>
+                    <div class="quiz-question">
+                        <div class="question-number">Q7</div>
+                        <div class="question-text">Minimum practical QAM order?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q7" value="2-QAM" required> 2-QAM</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q7" value="4-QAM"> 4-QAM (QPSK)</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q7" value="8-QAM"> 8-QAM</label>
+                        </div>
+                    </div>
 
-  <h3>16-QAM</h3>
-  <ul>
-    <li>Constellation has 16 points, encoding 4 bits per symbol.</li>
-    <li>Balances bandwidth efficiency with moderate robustness.</li>
-    <li><strong>Working range:</strong> 15–20 dB SNR.</li>
-    <li><strong>Safest range:</strong> ≥18 dB for stable performance.</li>
-    <li>Commonly used in Wi-Fi and cable modems for medium‑quality channels.</li>
-  </ul>
+                    <div class="quiz-question">
+                        <div class="question-number">Q8</div>
+                        <div class="question-text">Why sensitive to noise?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q8" value="Closer points" required> Closer constellation points</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q8" value="Lower frequency"> Lower frequency</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q8" value="Duration"> Reduced symbol duration</label>
+                        </div>
+                    </div>
 
-  <h3>64-QAM</h3>
-  <ul>
-    <li>Constellation has 64 points, encoding 6 bits per symbol.</li>
-    <li>High bandwidth efficiency but sensitive to noise.</li>
-    <li><strong>Working range:</strong> 25–30 dB SNR.</li>
-    <li><strong>Safest range:</strong> ≥28 dB for reliable transmission.</li>
-    <li>Widely used in LTE and advanced broadband systems where channel quality is good.</li>
-  </ul>
+                    <div class="quiz-question">
+                        <div class="question-number">Q9</div>
+                        <div class="question-text">256-QAM advantage?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q9" value="Noise immunity" required> Better noise immunity</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q9" value="Spectral efficiency"> Higher spectral efficiency</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q9" value="Simple"> Simpler implementation</label>
+                        </div>
+                    </div>
 
-  <h3>256-QAM</h3>
-  <ul>
-    <li>Constellation has 256 points, encoding 8 bits per symbol.</li>
-    <li>Extremely bandwidth‑efficient but highly vulnerable to noise.</li>
-    <li><strong>Working range:</strong> 33–36 dB SNR.</li>
-    <li><strong>Safest range:</strong> ≥35 dB to minimize BER.</li>
-    <li>Used in modern fiber and 5G systems where channel conditions are excellent.</li>
-  </ul>
-</section>
+                    <div class="quiz-question">
+                        <div class="question-number">Q10</div>
+                        <div class="question-text">Which does NOT use QAM?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="pretest_q10" value="Wi-Fi" required> Wi-Fi (802.11)</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q10" value="AM Radio"> AM Radio</label>
+                            <label class="quiz-option"><input type="radio" name="pretest_q10" value="LTE"> LTE 4G</label>
+                        </div>
+                    </div>
+                </form>
+                <button class="btn" onclick="submitPretest()" style="margin-top: 2rem;">Submit Pre-Test</button>
+            </div>
+            <div id="pretestResults" style="display: none; margin-top: 2rem;"></div>
+        </section>
+
+        <section id="simulation" class="tab-content">
+            <h2>Interactive Simulation</h2>
+            <p>Adjust parameters and observe QAM signal response to SNR variations.</p>
+            <div style="background: var(--tertiary-bg); border: 2px solid var(--border-cyan); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label for="qamOrder">QAM Order:</label>
+                    <select id="qamOrder" onchange="runSimulation()">
+                        <option value="4">4-QAM (QPSK) - 2 bits/symbol</option>
+                        <option value="16" selected>16-QAM - 4 bits/symbol</option>
+                        <option value="64">64-QAM - 6 bits/symbol</option>
+                        <option value="256">256-QAM - 8 bits/symbol</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="snr">SNR (dB): <span id="snrValue">20</span> dB</label>
+                    <input type="range" id="snr" min="0" max="40" value="20" step="1" oninput="updateSNRValue(this.value); runSimulation()" style="width: 100%; cursor: pointer;">
+                </div>
+                <button class="btn" onclick="runSimulation()" style="width: 100%;">Run Simulation</button>
+            </div>
+            <div id="constellation" class="plot" style="border: 2px solid var(--border-cyan); border-radius: 8px; margin-bottom: 2rem;"></div>
+            <div id="waveform" class="plot" style="border: 2px solid var(--border-cyan); border-radius: 8px;"></div>
+        </section>
+
+        <section id="posttest" class="tab-content">
+            <h2>Post-Test (After Simulation)</h2>
+            <p class="alert alert-info">📝 Answer questions after running simulation:</p>
+            <div class="quiz-container">
+                <div class="quiz-progress">
+                    <div>Progress: <span id="posttestProgress">0</span>/10 Answered</div>
+                    <div class="progress-bar"><div class="progress-fill" id="posttestProgressBar" style="width: 0%"></div></div>
+                </div>
+                <form id="posttestForm">
+                    <div class="quiz-question">
+                        <div class="question-number">Q1</div>
+                        <div class="question-text">Higher-order QAM requires higher SNR because?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q1" value="Points closer" required> Constellation points are closer</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q1" value="Higher frequency"> Higher carrier frequencies</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q1" value="Bandwidth"> Uses more bandwidth</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q2</div>
+                        <div class="question-text">When SNR decreases, constellation points?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q2" value="Fixed" required> Remain fixed</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q2" value="Spread"> Spread out due to noise</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q2" value="Disappear"> Disappear</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q3</div>
+                        <div class="question-text">QAM bandwidth vs error trade-off?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q3" value="Symbol rate" required> Increase symbol rate</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q3" value="More bits"> More bits but higher SNR</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q3" value="Lower order"> Lower modulation order</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q4</div>
+                        <div class="question-text">Observed at low SNR in simulation?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q4" value="Clear" required> Clearer constellation</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q4" value="Scattered"> Scattered points, higher BER</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q4" value="No change"> No change</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q5</div>
+                        <div class="question-text">QAM used in?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q5" value="WiFi LTE" required> Wi-Fi and LTE</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q5" value="AM"> AM radio</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q5" value="Morse"> Morse code</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q6</div>
+                        <div class="question-text">Constellation diagram represents?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q6" value="Spectrum" required> Frequency spectrum</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q6" value="IQ plane"> Symbol mapping in I-Q plane</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q6" value="Noise"> Noise power</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q7</div>
+                        <div class="question-text">BER when SNR increases?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q7" value="Decreases" required> BER decreases</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q7" value="Increases"> BER increases</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q7" value="Constant"> Remains constant</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q8</div>
+                        <div class="question-text">Robust to noise?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q8" value="4-QAM" required> 4-QAM</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q8" value="64-QAM"> 64-QAM</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q8" value="256-QAM"> 256-QAM</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q9</div>
+                        <div class="question-text">Safe SNR for 64-QAM?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q9" value="10dB" required> ≥10 dB</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q9" value="18dB"> ≥18 dB</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q9" value="28dB"> ≥28 dB</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <div class="question-number">Q10</div>
+                        <div class="question-text">4-QAM vs 256-QAM in noise?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option"><input type="radio" name="posttest_q10" value="4-QAM robust" required> 4-QAM more robust</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q10" value="256-QAM"> 256-QAM more robust</label>
+                            <label class="quiz-option"><input type="radio" name="posttest_q10" value="Same"> Identical</label>
+                        </div>
+                    </div>
+                </form>
+                <button class="btn" onclick="submitPosttest()" style="margin-top: 2rem;">Submit Post-Test</button>
+            </div>
+            <div id="posttestResults" style="display: none; margin-top: 2rem;"></div>
+        </section>
+
+        <section id="results" class="tab-content">
+            <h2>Results & Observations</h2>
+            <div id="resultsText"></div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">4-QAM (QPSK)</div></div>
+                <div class="card-content">
+                    <p><strong>Bits per Symbol:</strong> 2 | <strong>Points:</strong> 4</p>
+                    <ul>
+                        <li>Very robust to noise</li>
+                        <li>Suitable for low SNR channels</li>
+                        <li>Working range: 6–10 dB</li>
+                        <li>Safest range: ≥10 dB</li>
+                        <li>Applications: Satellite, IoT, Emergency</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">16-QAM</div></div>
+                <div class="card-content">
+                    <p><strong>Bits per Symbol:</strong> 4 | <strong>Points:</strong> 16</p>
+                    <ul>
+                        <li>Balances efficiency with robustness</li>
+                        <li>Working range: 15–18 dB</li>
+                        <li>Safest range: ≥18 dB</li>
+                        <li>Applications: WiFi-g, DSL, Cable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">64-QAM</div></div>
+                <div class="card-content">
+                    <p><strong>Bits per Symbol:</strong> 6 | <strong>Points:</strong> 64</p>
+                    <ul>
+                        <li>High bandwidth efficiency</li>
+                        <li>Sensitive to noise</li>
+                        <li>Working range: 25–28 dB</li>
+                        <li>Safest range: ≥28 dB</li>
+                        <li>Applications: LTE, DVB, Advanced DSL</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">256-QAM</div></div>
+                <div class="card-content">
+                    <p><strong>Bits per Symbol:</strong> 8 | <strong>Points:</strong> 256</p>
+                    <ul>
+                        <li>Extremely high efficiency</li>
+                        <li>Highly sensitive to noise</li>
+                        <li>Working range: 33–36 dB</li>
+                        <li>Safest range: ≥35 dB</li>
+                        <li>Applications: WiFi-6, 5G, Fiber</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text"><strong>QAM Virtual Laboratory</strong><br>Digital Communication & Signal Processing</div>
+            </div>
+            <div class="footer-links">
+                <a href="#aim">About</a>
+                <a href="#theory">Theory</a>
+                <a href="#simulation">Simulate</a>
+                <a href="#results">Results</a>
+            </div>
+        </div>
+        <div class="footer-bottom">For educational purposes | Interactive Learning Platform</div>
+    </footer>
+
+    <script src="../js/qam.js" defer></script>
+</body>
+</html>
