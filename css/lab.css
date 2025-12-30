@@ -1,0 +1,114 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f6f8;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 12px 20px;
+    border-bottom: 3px solid #003366;
+}
+
+header img {
+    height: 55px;
+    margin-right: 15px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 20px;
+    color: #003366;
+}
+
+header p {
+    margin: 0;
+    font-size: 14px;
+    color: #444;
+}
+
+nav {
+    background-color: #003366;
+    padding: 8px 20px;
+}
+
+nav a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+section {
+    background: white;
+    margin: 15px;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+h2 {
+    color: #003366;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.sim-container {
+    display: flex;
+    gap: 20px;
+}
+
+.controls {
+    width: 260px;
+    background: #eef2f5;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.controls label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.controls input,
+.controls select,
+.controls button {
+    width: 100%;
+    margin-top: 5px;
+    padding: 6px;
+}
+
+.controls button {
+    margin-top: 15px;
+    background-color: #003366;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.controls button:hover {
+    background-color: #0055aa;
+}
+
+.plots {
+    flex: 1;
+}
+
+#constellation,
+#waveform {
+    height: 350px;
+}
+
+footer {
+    background-color: #003366;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+}
