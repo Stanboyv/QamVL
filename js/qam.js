@@ -51,8 +51,8 @@ const TabNavigation = {
     tabContents.forEach(content => content.classList.remove('active'));
 
     // Activate selected tab
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-    document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+    document.querySelector(`button[onclick*="${tabName}"]`)?.classList.add('active');
+    document.getElementById(tabName)?.classList.add('active');
 
     appState.currentTab = tabName;
 
